@@ -2,10 +2,10 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>毛选决策专家</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap');
 
         * {
             margin: 0;
@@ -15,376 +15,431 @@
 
         :root {
             --bg-primary: #000000;
-            --bg-secondary: #111111;
-            --bg-tertiary: #1a1a1a;
+            --bg-secondary: #0a0a0a;
+            --bg-tertiary: #141414;
             --text-primary: #ffffff;
-            --text-secondary: #888888;
-            --text-tertiary: #555555;
+            --text-secondary: #a0a0a0;
+            --text-tertiary: #606060;
             --border-color: #2a2a2a;
             --accent-color: #ffffff;
+            --input-bg: #1a1a1a;
         }
 
         body {
             font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
-            min-height: 100vh;
-            font-weight: 400;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
         }
 
-        /* 顶部导航 */
-        .navbar {
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 20px 0;
-            position: sticky;
+        /* 侧边栏 */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            position: absolute;
+            left: 0;
             top: 0;
-            z-index: 1000;
+            bottom: 0;
+            z-index: 100;
+            transform: translateX(-100%);
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+            position: relative;
+        }
+
+        .sidebar-header {
+            padding: 20px;
             border-bottom: 1px solid var(--border-color);
         }
 
-        .navbar-content {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 0 40px;
+        .sidebar-logo {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
         }
 
-        .logo {
-            font-size: 18px;
+        .sidebar-logo svg {
+            width: 32px;
+            height: 32px;
+            fill: var(--text-primary);
+        }
+
+        .sidebar-logo-text {
+            font-size: 16px;
             font-weight: 600;
             letter-spacing: -0.3px;
         }
 
-        .version {
-            font-size: 12px;
-            color: var(--text-tertiary);
-            font-weight: 500;
-            padding: 6px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-        }
-
-        /* 主容器 */
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 60px 40px;
-        }
-
-        /* 标题区域 */
-        .header {
-            text-align: center;
-            margin-bottom: 60px;
-            animation: fadeIn 0.8s ease;
-        }
-
-        .title {
-            font-size: 48px;
-            font-weight: 700;
-            letter-spacing: -1.2px;
-            margin-bottom: 12px;
-            line-height: 1.1;
-        }
-
-        .subtitle {
-            font-size: 16px;
-            color: var(--text-secondary);
-            font-weight: 400;
-            line-height: 1.6;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        /* 输入区域 */
-        .input-section {
-            margin-bottom: 40px;
-            animation: fadeIn 0.8s ease 0.1s backwards;
-        }
-
-        .input-wrapper {
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid var(--border-color);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .input-wrapper:focus-within {
-            border-color: var(--text-secondary);
-            box-shadow: 0 0 0 1px var(--border-color);
-        }
-
-        .textarea {
-            width: 100%;
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            font-size: 16px;
-            font-family: inherit;
-            resize: none;
-            outline: none;
-            line-height: 1.7;
-            min-height: 140px;
-        }
-
-        .textarea::placeholder {
-            color: var(--text-tertiary);
-        }
-
-        .button-row {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-        }
-
-        .button {
-            flex: 1;
-            padding: 16px 32px;
-            border-radius: 8px;
-            border: none;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            font-family: inherit;
-        }
-
-        .button-primary {
-            background: var(--accent-color);
-            color: var(--bg-primary);
-        }
-
-        .button-primary:hover {
-            background: #e8e8e8;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-        }
-
-        .button-primary:active {
-            transform: translateY(0);
-            background: #d0d0d0;
-        }
-
-        .button-secondary {
-            background: transparent;
-            color: var(--text-secondary);
-            border: 1px solid var(--border-color);
-        }
-
-        .button-secondary:hover {
-            border-color: var(--text-tertiary);
-            color: var(--text-primary);
-        }
-
-        /* 加载状态 */
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 80px 20px;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .loading.active {
-            display: block;
-        }
-
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 2px solid var(--bg-tertiary);
-            border-top-color: var(--text-primary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        .loading-text {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* 结果区域 */
-        .result {
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
-
-        .result.active {
-            display: block;
-        }
-
-        .result-card {
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            padding: 28px;
-            border: 1px solid var(--border-color);
-        }
-
-        .result-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 24px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .result-avatar {
-            width: 36px;
-            height: 36px;
-            background: var(--accent-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .result-avatar svg {
-            width: 18px;
-            height: 18px;
-            fill: var(--bg-primary);
-        }
-
-        .result-title {
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .result-content {
-            font-size: 15px;
-            line-height: 1.9;
-            color: var(--text-secondary);
-            white-space: pre-wrap;
-        }
-
-        .result-content strong {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        /* 示例区域 */
-        .section-label {
-            font-size: 12px;
-            color: var(--text-tertiary);
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            margin-bottom: 16px;
-            animation: fadeIn 0.8s ease 0.2s backwards;
-        }
-
-        .examples-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 40px;
-            animation: fadeIn 0.8s ease 0.3s backwards;
-        }
-
-        .example-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 18px 20px;
-            display: flex;
-            align-items: flex-start;
-            gap: 14px;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .example-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--accent-color);
-            opacity: 0;
-            transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .example-card:hover {
-            border-color: var(--text-secondary);
-            transform: translateX(6px);
-        }
-
-        .example-card:active {
-            transform: translateX(3px);
-        }
-
-        .example-icon {
-            width: 44px;
-            height: 44px;
-            background: var(--bg-tertiary);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            z-index: 1;
-        }
-
-        .example-icon svg {
-            width: 22px;
-            height: 22px;
-            fill: var(--text-primary);
-        }
-
-        .example-content {
-            flex: 1;
-            z-index: 1;
-        }
-
-        .example-title {
-            font-size: 15px;
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-
-        .example-desc {
+        .sidebar-subtitle {
             font-size: 13px;
             color: var(--text-secondary);
             line-height: 1.5;
         }
 
-        /* 提示框 */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--accent-color);
-            color: var(--bg-primary);
-            padding: 14px 28px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 2000;
+        .sidebar-menu {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
         }
 
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
+        .sidebar-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-menu-item:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .sidebar-menu-item svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .sidebar-menu-item span {
+            font-size: 14px;
+        }
+
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sidebar-footer-content {
+            text-align: center;
+            padding: 16px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+        }
+
+        .sidebar-footer-logo {
+            margin-bottom: 8px;
+        }
+
+        .sidebar-footer-logo svg {
+            width: 40px;
+            height: 40px;
+            fill: var(--text-primary);
+        }
+
+        .sidebar-footer-text {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            line-height: 1.5;
+        }
+
+        .sidebar-footer-contact {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            cursor: pointer;
+        }
+
+        /* 主内容区域 */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 顶部导航 */
+        .top-bar {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+        }
+
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .menu-button {
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .menu-button:hover {
+            opacity: 0.8;
+        }
+
+        .menu-button svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--text-primary);
+        }
+
+        .top-bar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .top-bar-logo svg {
+            width: 28px;
+            height: 28px;
+            fill: var(--text-primary);
+        }
+
+        .top-bar-logo-text {
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .new-chat-button {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .new-chat-button:hover {
+            background: var(--border-color);
+        }
+
+        /* 对话区域 */
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 80px 20px 100px;
+            scroll-behavior: smooth;
+        }
+
+        .chat-message {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 32px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .chat-message.user {
+            justify-content: flex-end;
+        }
+
+        .chat-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .chat-avatar.assistant {
+            background: var(--accent-color);
+        }
+
+        .chat-avatar.assistant svg {
+            width: 18px;
+            height: 18px;
+            fill: var(--bg-primary);
+        }
+
+        .chat-avatar.user {
+            background: var(--bg-tertiary);
+        }
+
+        .chat-avatar.user svg {
+            width: 18px;
+            height: 18px;
+            fill: var(--text-primary);
+        }
+
+        .chat-content {
+            flex: 1;
+            max-width: 800px;
+        }
+
+        .chat-message.user .chat-content {
+            max-width: 600px;
+        }
+
+        .chat-bubble {
+            background: var(--bg-tertiary);
+            padding: 16px 20px;
+            border-radius: 12px;
+            line-height: 1.7;
+            font-size: 15px;
+            color: var(--text-primary);
+        }
+
+        .chat-message.user .chat-bubble {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .chat-message.assistant .chat-bubble {
+            background: transparent;
+            padding: 0;
+        }
+
+        .chat-message.assistant .chat-text {
+            line-height: 1.8;
+            color: var(--text-secondary);
+            font-size: 15px;
+            white-space: pre-wrap;
+        }
+
+        .chat-message.assistant .chat-text strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* 输入区域 */
+        .input-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .input-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .input-box {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px 50px 14px 16px;
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .input-box:focus-within {
+            border-color: var(--text-secondary);
+            box-shadow: 0 0 0 1px var(--border-color);
+        }
+
+        .input-field {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 15px;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            line-height: 1.5;
+            min-height: 24px;
+            max-height: 200px;
+        }
+
+        .input-field::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .send-button {
+            position: absolute;
+            right: 12px;
+            bottom: 12px;
+            background: var(--text-primary);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            opacity: 0.5;
+        }
+
+        .input-field:focus ~ .send-button,
+        .input-field:not(:placeholder-shown) ~ .send-button {
+            opacity: 1;
+        }
+
+        .send-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .send-button svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--bg-primary);
+        }
+
+        /* 遮罩层 */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+        }
+
+        .overlay.active {
+            display: block;
         }
 
         /* 动画 */
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(15px);
+                transform: translateY(10px);
             }
             to {
                 opacity: 1;
@@ -392,23 +447,44 @@
             }
         }
 
-        /* 底部 */
-        .footer {
-            margin-top: 60px;
-            padding: 30px 0;
-            text-align: center;
-            border-top: 1px solid var(--border-color);
-        }
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                transform: translateX(-100%);
+            }
 
-        .footer-text {
-            font-size: 13px;
-            color: var(--text-tertiary);
-            line-height: 1.7;
+            .sidebar.open {
+                transform: translateX(0);
+                position: fixed;
+            }
+
+            .top-bar-logo-text {
+                display: none;
+            }
+
+            .chat-message {
+                gap: 12px;
+            }
+
+            .chat-avatar {
+                width: 32px;
+                height: 32px;
+            }
+
+            .input-container {
+                padding: 12px 16px;
+                padding-bottom: calc(12px + env(safe-area-inset-bottom));
+            }
+
+            .input-box {
+                padding: 12px 44px 12px 14px;
+            }
         }
 
         /* 滚动条 */
         ::-webkit-scrollbar {
-            width: 8px;
+            width: 6px;
         }
 
         ::-webkit-scrollbar-track {
@@ -416,8 +492,8 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: var(--bg-tertiary);
-            border-radius: 4px;
+            background: var(--border-color);
+            border-radius: 3px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
@@ -426,342 +502,556 @@
     </style>
 </head>
 <body>
-    <!-- 顶部导航 -->
-    <nav class="navbar">
-        <div class="navbar-content">
-            <div class="logo">毛选决策专家</div>
-            <div class="version">V2.3</div>
-        </div>
-    </nav>
-
-    <!-- 主容器 -->
-    <div class="container">
-        <!-- 标题 -->
-        <div class="header">
-            <h1 class="title">智能决策分析</h1>
-            <p class="subtitle">基于毛选思想的决策辅助系统<br>创业·职场·合作·家庭</p>
+    <!-- 侧边栏 -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                <span class="sidebar-logo-text">毛选决策专家</span>
+            </div>
+            <p class="sidebar-subtitle">创业·职场·合作·家庭<br>四大场景决策分析</p>
         </div>
 
-        <!-- 输入区域 -->
-        <div class="input-section">
-            <div class="input-wrapper">
-                <textarea
-                    id="userInput"
-                    class="textarea"
-                    placeholder="描述你的决策问题，例如：我要不要创业？现在手里有10万块钱，担心亏了钱怎么办？"
-                ></textarea>
-                <div class="button-row">
-                    <button class="button button-primary" onclick="analyze()">
-                        开始分析
-                    </button>
-                    <button class="button button-secondary" onclick="clearInput()">
-                        清空
-                    </button>
-                </div>
+        <div class="sidebar-menu">
+            <div class="sidebar-menu-item" onclick="showHistory()">
+                <svg viewBox="0 0 24 24">
+                    <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+                </svg>
+                <span>历史对话</span>
+            </div>
+            <div class="sidebar-menu-item" onclick="showSettings()">
+                <svg viewBox="0 0 24 24">
+                    <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L3.16 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.04.64.09.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                </svg>
+                <span>设置</span>
+            </div>
+            <div class="sidebar-menu-item" onclick="showHelp()">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                </svg>
+                <span>帮助</span>
             </div>
         </div>
 
-        <!-- 加载状态 -->
-        <div class="loading" id="loading">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">正在深度分析中...</div>
-        </div>
-
-        <!-- 结果区域 -->
-        <div class="result" id="result">
-            <div class="result-card">
-                <div class="result-header">
-                    <div class="result-avatar">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                        </svg>
-                    </div>
-                    <div class="result-title">分析结果</div>
-                </div>
-                <div class="result-content" id="resultContent"></div>
-            </div>
-        </div>
-
-        <!-- 示例问题 -->
-        <div class="section-label">快速开始</div>
-        <div class="examples-grid">
-            <div class="example-card" onclick="useExample('startup')">
-                <div class="example-icon">
+        <div class="sidebar-footer">
+            <div class="sidebar-footer-content">
+                <div class="sidebar-footer-logo">
                     <svg viewBox="0 0 24 24">
                         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                     </svg>
                 </div>
-                <div class="example-content">
-                    <div class="example-title">创业决策</div>
-                    <div class="example-desc">10万块钱要不要创业？</div>
+                <p class="sidebar-footer-text">毛选决策专家<br>智能决策辅助系统</p>
+                <div class="sidebar-footer-contact">联系我们</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 遮罩层 -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- 主内容 -->
+    <div class="main-container">
+        <!-- 顶部导航 -->
+        <header class="top-bar">
+            <div class="top-bar-left">
+                <button class="menu-button" onclick="toggleSidebar()">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                    </svg>
+                </button>
+                <div class="top-bar-logo">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    <span class="top-bar-logo-text">毛选决策专家</span>
                 </div>
             </div>
-
-            <div class="example-card" onclick="useExample('career')">
-                <div class="example-icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/>
+            <div class="top-bar-right">
+                <button class="new-chat-button" onclick="startNewChat()">
+                    <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: currentColor;">
+                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
                     </svg>
-                </div>
-                <div class="example-content">
-                    <div class="example-title">职场转型</div>
-                    <div class="example-desc">要不要跳槽到新公司？</div>
-                </div>
+                    新对话
+                </button>
             </div>
+        </header>
 
-            <div class="example-card" onclick="useExample('cooperation')">
-                <div class="example-icon">
+        <!-- 对话区域 -->
+        <div class="chat-area" id="chatArea">
+            <!-- 欢迎消息 -->
+            <div class="chat-message assistant">
+                <div class="chat-avatar assistant">
                     <svg viewBox="0 0 24 24">
-                        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                     </svg>
                 </div>
-                <div class="example-content">
-                    <div class="example-title">合作决策</div>
-                    <div class="example-desc">朋友合伙做生意</div>
-                </div>
-            </div>
+                <div class="chat-content">
+                    <div class="chat-text">你好！我是毛选决策专家，可以帮你进行智能决策分析。
 
-            <div class="example-card" onclick="useExample('house')">
-                <div class="example-icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-                    </svg>
-                </div>
-                <div class="example-content">
-                    <div class="example-title">房产决策</div>
-                    <div class="example-desc">要不要买房？</div>
+请告诉我你遇到的决策问题，我会根据你的具体情况进行分析和引导。</div>
                 </div>
             </div>
         </div>
 
-        <div class="footer">
-            <p class="footer-text">
-                本系统仅提供决策参考，不替代专业意见<br>
-                涉及重大决策请咨询专业人士
-            </p>
+        <!-- 输入区域 -->
+        <div class="input-container">
+            <div class="input-wrapper">
+                <div class="input-box">
+                    <textarea
+                        id="userInput"
+                        class="input-field"
+                        placeholder="输入你的决策问题..."
+                        rows="1"
+                    ></textarea>
+                    <button class="send-button" id="sendButton" onclick="sendMessage()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- 提示框 -->
-    <div class="toast" id="toast">已开始分析</div>
-
     <script>
-        const examples = {
-            startup: '我要不要创业？现在手里有10万块钱，担心亏了钱怎么办？',
-            career: '要不要跳槽？现在的公司稳定但没发展，新公司工资高但风险大',
-            cooperation: '朋友邀请我合伙做生意，但不知道靠不靠谱，该怎么办？',
-            house: '要不要买房？现在的房价太高了，担心接盘，不买又担心继续涨'
+        // 对话状态
+        let conversationState = {
+            messages: [],
+            currentStep: 'initial', // initial, guiding, analyzing, completed
+            gatheredInfo: {},
+            topic: null // 'startup', 'career', 'cooperation', 'house', 'other'
         };
 
-        const mockResults = {
-            startup: `问题类型：<strong>可设计型</strong>
+        // 侧边栏切换
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
 
-核心原则：不在信息不足时硬给结论，提供结构化设计方案
+        // 新对话
+        function startNewChat() {
+            const chatArea = document.getElementById('chatArea');
+            chatArea.innerHTML = `
+                <div class="chat-message assistant">
+                    <div class="chat-avatar assistant">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                    </div>
+                    <div class="chat-content">
+                        <div class="chat-text">你好！我是毛选决策专家，可以帮你进行智能决策分析。
 
-风险分析：
-• 10万本金属于小额投资，风险可控
-• 主要风险点：经验不足、市场不确定性、现金流压力
+请告诉我你遇到的决策问题，我会根据你的具体情况进行分析和引导。</div>
+                    </div>
+                </div>
+            `;
 
-设计建议：
+            conversationState = {
+                messages: [],
+                currentStep: 'initial',
+                gatheredInfo: {},
+                topic: null
+            };
+        }
 
-最小可行验证方案（MVP）
-• 先不辞职，利用业余时间小规模试错
-• 选择低成本、低风险的副业项目
-• 例如：电商代购、自媒体、技能变现
+        // 识别话题
+        function identifyTopic(text) {
+            if (text.includes('创业') || text.includes('副业') || text.includes('开店')) {
+                return 'startup';
+            } else if (text.includes('跳槽') || text.includes('转型') || text.includes('辞职') || text.includes('职场')) {
+                return 'career';
+            } else if (text.includes('合伙') || text.includes('合作') || text.includes('伙伴')) {
+                return 'cooperation';
+            } else if (text.includes('买房') || text.includes('房产') || text.includes('置业')) {
+                return 'house';
+            }
+            return 'other';
+        }
 
-风险兜底机制
-• 设定止损线：亏损不超过3万就及时止损
-• 保留7万作为生活备用金
-• 不要投入全部资金，分期投入
+        // 添加消息到对话区域
+        function addMessage(type, content) {
+            const chatArea = document.getElementById('chatArea');
 
-盈利验证机制
-• 第1个月：不追求盈利，验证商业模式
-• 第2-3个月：测试客户需求，优化产品/服务
-• 第4个月后：开始考虑是否全职投入
+            const messageHtml = `
+                <div class="chat-message ${type}">
+                    <div class="chat-avatar ${type}">
+                        ${type === 'user'
+                            ? '<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>'
+                            : '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>'
+                        }
+                    </div>
+                    <div class="chat-content">
+                        ${type === 'user'
+                            ? `<div class="chat-bubble">${content}</div>`
+                            : `<div class="chat-text">${content}</div>`
+                        }
+                    </div>
+                </div>
+            `;
 
-结论：
-✅ 可以尝试，但必须遵循"小步快跑、快速验证"的原则
-⚠️ 不要辞职全职创业，先副业试水
-💡 重点在于：控制风险、快速验证、及时止损`,
+            chatArea.insertAdjacentHTML('beforeend', messageHtml);
+            chatArea.scrollTop = chatArea.scrollHeight;
 
-            career: `问题类型：<strong>可设计型</strong>
+            conversationState.messages.push({ type, content });
+        }
 
-核心原则：不直接拍板，提供结构化分析和设计建议
+        // 发送消息
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
 
-现状分析：
-• 现公司：稳定、安全、但缺乏发展
-• 新公司：高薪、高风险、发展机会未知
+            if (!text) return;
 
-设计思路：
+            // 添加用户消息
+            addMessage('user', text);
+            input.value = '';
 
-现状深度调研
-• 在现公司是否还有上升空间？
-• 和领导沟通：未来1年的发展机会
-• 新公司的高薪背后是什么？
-• 加班强度、工作压力、公司稳定性
+            // 禁用发送按钮
+            document.getElementById('sendButton').disabled = true;
 
-决策框架
+            // 处理对话逻辑
+            setTimeout(() => {
+                handleConversation(text);
+                document.getElementById('sendButton').disabled = false;
+            }, 1000);
+        }
 
-风险承受能力
-• 年龄阶段（25岁以下可以多冒险）
-• 家庭状况（是否需要稳定收入）
-• 经济储备（至少6个月生活费）
+        // 处理对话逻辑
+        function handleConversation(userInput) {
+            const state = conversationState;
 
-职业发展曲线
-• 现岗位：第1-2年学习成长，第3年开始平稳
-• 新岗位：曲线可能更陡峭，但波动更大
+            switch (state.currentStep) {
+                case 'initial':
+                    // 识别话题
+                    state.topic = identifyTopic(userInput);
+                    state.currentStep = 'guiding';
+                    state.gatheredInfo.initialQuery = userInput;
 
-结论：
-✅ 建议先拿到offer，再仔细评估
-⚠️ 重点关注：新公司的稳定性、工作强度、发展空间
-💡 如果现公司还有上升空间，不要轻易跳槽
-🎯 等待更好的机会，或者先在现公司争取晋升`,
+                    // 根据话题引导补充信息
+                    const guideMessage = getGuideMessage(state.topic);
+                    addMessage('assistant', guideMessage);
+                    break;
 
-            cooperation: `问题类型：<strong>信息不足型</strong>
+                case 'guiding':
+                    // 收集用户补充的信息
+                    collectInfo(userInput);
+                    state.gatheredInfo.userResponse = userInput;
 
-核心原则：只补信息，不给倾向性结论
+                    // 检查信息是否足够
+                    if (isInfoComplete(state.gatheredInfo)) {
+                        state.currentStep = 'completed';
+                        const analysisResult = getAnalysisResult(state.topic, state.gatheredInfo);
+                        addMessage('assistant', analysisResult);
+                    } else {
+                        // 继续引导
+                        const followUp = getFollowUpQuestion(state.topic, state.gatheredInfo);
+                        addMessage('assistant', followUp);
+                    }
+                    break;
 
-需要补充的关键信息：
+                case 'completed':
+                    // 对话已完成，可以继续提问或开始新对话
+                    addMessage('assistant', '这是一个新的决策问题吗？如果是，我们可以开始新的分析。如果不是，请告诉我你还需要了解什么。');
+                    state.currentStep = 'initial';
+                    break;
+            }
+        }
 
-项目相关信息
-• 朋友的创业经验：有没有成功案例？
-• 项目的基本情况：做什么业务？商业模式是什么？
-• 市场前景如何？有没有做过调研？
+        // 获取引导消息
+        function getGuideMessage(topic) {
+            const guides = {
+                startup: `收到创业决策的需求。为了给你更准确的分析，我需要了解一些关键信息：
 
-朋友的人品和能力
-• 之前的合作经历：效果如何？有没有矛盾？
-• 责任心和执行力：是否靠谱？答应的事能否兑现？
-• 遇到问题如何处理？
+1. **资金情况**：你现在的创业资金是多少？是自有资金还是需要借贷？
+2. **经验背景**：你之前有相关行业经验吗？创业经验呢？
+3. **风险承受能力**：你能接受的最大亏损是多少？
 
-风险评估
-• 合伙协议：是否有书面协议？协议条款是否清晰？
-• 利益冲突：朋友和你的利益是否一致？
-• 关系风险：如果生意失败，会影响友谊吗？
+请逐一告诉我这些信息。`,
+                career: `收到职场转型的需求。为了给你更准确的分析，我需要了解一些关键信息：
 
-结论：
-⚠️ 信息不足，无法给出倾向性结论
-✅ 建议先充分沟通，补充上述关键信息
-💡 重点考察：朋友的可靠性、项目的可行性、风险的可控性
-🎯 不要被感情绑架，理性评估风险`,
+1. **当前状况**：你现在的工作年限、职位、薪资是多少？
+2. **新机会详情**：新公司是什么类型？薪资涨幅多少？职位变化如何？
+3. **个人情况**：你的年龄、家庭状况、经济储备如何？
 
-            house: `问题类型：<strong>可拍板型</strong>
+请逐一告诉我这些信息。`,
+                cooperation: `收到合作决策的需求。为了给你更准确的分析，我需要了解一些关键信息：
 
-核心原则：进行完整的决策分析，给出结论
+1. **合作对象**：这位朋友是你的什么关系？之前有合作经历吗？
+2. **项目情况**：具体是什么项目？商业模式是什么？市场前景如何？
+3. **风险考虑**：你有考虑过最坏的情况吗？如果合作失败，影响有多大？
 
-关键分析维度：
+请逐一告诉我这些信息。`,
+                house: `收到房产决策的需求。为了给你更准确的分析，我需要了解一些关键信息：
 
-价格与价值分析
-• 当前房价水平：对比历史房价和同区域价格
-• 租售比：正常值是15-25，如果超过30，说明房价偏高
+1. **购房目的**：是刚需（结婚、居住）还是投资？
+2. **资金情况**：你的首付能力如何？月供压力能承受多少？
+3. **城市规划**：你打算在哪个城市？是打算长期居住还是短期过渡？
 
-资金能力评估
-• 首付能力：首付是否压力过大？是否影响生活质量？
-• 月供能力：月供占收入的比重（建议不超过40%）
-• 机会成本：买房的钱如果不买房，能做其他投资吗？
+请逐一告诉我这些信息。`,
+                other: `收到你的决策需求。为了给你更准确的分析，我需要了解更多信息：
 
-居住需求分析
-• 刚需vs改善：是结婚、生子等刚需？还是改善居住环境？
-• 租房vs买房：租房的优点是灵活、无压力，买房的优点是稳定、资产增值
-• 未来规划：计划在这个城市待多久？如果将来要离开，房子好卖吗？
+1. **决策背景**：这个决策涉及什么领域？
+2. **当前状况**：你现在的具体情况是什么？
+3. **关键因素**：有哪些关键因素会影响这个决策？
 
-决策框架
+请逐一告诉我这些信息。`
+            };
 
-如果同时满足以下条件，建议买房：
+            return guides[topic] || guides.other;
+        }
+
+        // 收集信息
+        function collectInfo(userInput) {
+            conversationState.gatheredInfo.responses = conversationState.gatheredInfo.responses || [];
+            conversationState.gatheredInfo.responses.push(userInput);
+        }
+
+        // 检查信息是否完整
+        function isInfoComplete(info) {
+            const responses = info.responses || [];
+            return responses.length >= 2; // 至少收到2次回复
+        }
+
+        // 获取后续问题
+        function getFollowUpQuestion(topic, info) {
+            return `感谢你的信息。还有其他需要补充的吗？比如：
+- 潜在的风险和不确定性
+- 备选方案或退路
+- 时间紧迫性
+
+请告诉我更多细节，这样我能给你更全面的分析。`;
+        }
+
+        // 获取分析结果
+        function getAnalysisResult(topic, info) {
+            const results = {
+                startup: `<strong>决策类型：可设计型</strong>
+
+根据你的情况，以下是结构化的设计方案：
+
+<strong>核心原则</strong>
+• 小步快跑，快速验证
+• 严格控制风险，及时止损
+• 保留足够的生活备用金
+
+<strong>设计方案</strong>
+
+1. <strong>最小可行验证（MVP）</strong>
+   - 不要辞职创业，先利用业余时间试错
+   - 选择低成本、低风险的商业模式
+   - 目标是验证市场需求，而非立即盈利
+
+2. <strong>风险兜底机制</strong>
+   - 设定止损线：亏损不超过本金的30%
+   - 保留至少6个月的生活费用
+   - 分期投入，不要一次性投入全部资金
+
+3. <strong>动态验证机制</strong>
+   - 第1个月：验证商业模式可行性
+   - 第2-3个月：测试客户需求和市场反馈
+   - 第4个月后：根据数据决定是否全职投入
+
+<strong>关键建议</strong>
+✅ 可以尝试，但必须循序渐进
+⚠️ 严禁辞职创业，先副业试水
+💡 重点是：验证市场、控制风险、及时止损
+
+记住：创业是长期工程，不要急于求成。`,
+                career: `<strong>决策类型：可设计型</strong>
+
+根据你的情况，以下是结构化的设计方案：
+
+<strong>核心原则</strong>
+• 先拿到offer再做决定
+• 不裸辞，保障现金流
+• 评估长期发展而非短期收益
+
+<strong>设计框架</strong>
+
+1. <strong>深度调研</strong>
+   - 和现公司领导沟通：未来1年的发展机会
+   - 深入了解新公司：业务模式、团队文化、发展前景
+   - 咨询行业朋友：新公司的市场地位和口碑
+
+2. <strong>风险评估</strong>
+   - 年龄因素：25岁以下可多冒险，35+需谨慎
+   - 家庭状况：是否需要稳定收入支持家庭？
+   - 经济储备：至少有6个月的生活费作为缓冲
+
+3. <strong>职业曲线分析</strong>
+   - 现岗位：可能已进入平台期，晋升空间有限
+   - 新岗位：曲线更陡峭，发展更快但不稳定
+   - 综合评估：新岗位的长期价值 vs 短期风险
+
+<strong>关键建议</strong>
+✅ 先拿到新offer，保留现工作作为后备
+⚠️ 重点关注：新公司稳定性、团队文化、成长空间
+💡 如果现公司还有发展机会，不要轻易跳槽
+🎯 等待更好的机会，或者在现公司争取晋升
+
+记住：跳槽不是为了逃避，而是为了更好的发展。`,
+                cooperation: `<strong>决策类型：信息不足型</strong>
+
+根据现有信息，我需要提醒你关注以下关键点：
+
+<strong>风险提示</strong>
+• 合作关系的复杂性远超想象
+• 利益分配是最常见的矛盾来源
+• 友谊和商业往往难以兼得
+
+<strong>必须明确的要素</strong>
+
+1. <strong>合作方案</strong>
+   - 股权分配：谁的贡献更大？如何量化？
+   - 职责分工：谁负责什么？如何考核？
+   - 退出机制：如果合作不顺利，如何退出？
+
+2. <strong>法律保障</strong>
+   - 必须签署正式的合伙协议
+   - 明确利润分配和决策机制
+   - 约定争议解决方式
+
+3. <strong>个人评估</strong>
+   - 你能接受最坏的情况吗？
+   - 如果合作失败，友谊还能维持吗？
+   - 你对这位朋友的人品和诚信有多了解？
+
+<strong>核心建议</strong>
+⚠️ 不要被感情绑架，理性评估风险
+✅ 先小规模合作试水，观察对方的实际表现
+💡 始终保留退出选项，不要投入过多个人情感
+🎯 记住：商业归商业，感情归感情
+
+记住：信任是建立在制度之上的，而不是凭空存在的。`,
+                house: `<strong>决策类型：可拍板型</strong>
+
+根据你的情况，以下是完整的决策分析：
+
+<strong>关键维度分析</strong>
+
+1. <strong>价格与价值</strong>
+   - 当前房价水平：对比历史和周边价格
+   - 租售比：房价/年租金，正常值15-25
+   - 通胀预期：房产是对抗通胀的长期资产
+
+2. <strong>资金能力</strong>
+   - 首付压力：是否影响生活质量？
+   - 月供能力：月供占收入比重（建议<40%）
+   - 机会成本：资金是否有更好的投资渠道？
+
+3. <strong>居住需求</strong>
+   - 刚需优先：结婚、生子、孩子上学
+   - 改善需求：换更大的房子、更好的学区
+   - 投资需求：长期持有的资产配置
+
+<strong>决策建议</strong>
+
+<strong>如果同时满足以下条件，建议买房：</strong>
 ✅ 是刚需（结婚、生子、安家）
 ✅ 首付和月供在可承受范围内
 ✅ 租售比合理（<30）
-✅ 计划在这个城市长期居住
+✅ 计划在这个城市长期居住（5年以上）
 
-如果满足以下任一条件，建议暂时观望：
+<strong>如果满足以下任一条件，建议观望：</strong>
 ⚠️ 房价处于历史高位
 ⚠️ 租售比过高（>35）
-⚠️ 月供压力过大
+⚠️ 月供压力过大（>收入50%）
 ⚠️ 不确定是否长期居住
+⚠️ 有更好的投资机会
 
-结论：
-✅ 如果是刚需且资金充足，可以买
+<strong>核心结论</strong>
+✅ 如果是刚需且资金充足，可以买房
 ⚠️ 如果是投资或改善，建议观望
-💡 不要因为"害怕错过"而盲目买房
-🎯 理性评估，量力而行`
-        };
+💡 不要因为"害怕错过"而盲目决策
+🎯 理性评估，量力而行
 
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2000);
+记住：买房是重大决策，不要被情绪左右。`,
+                other: `<strong>决策类型：需要更多信息</strong>
+
+基于你提供的信息，我建议你：
+
+1. <strong>明确核心问题</strong>
+   - 这个决策的核心矛盾是什么？
+   - 有哪些关键的决策变量？
+
+2. <strong>收集信息</strong>
+   - 列出所有可能的影响因素
+   - 评估每个因素的重要性和不确定性
+
+3. <strong>分析备选方案</strong>
+   - 有哪些可行的选项？
+   - 每个选项的优缺点是什么？
+
+<strong>通用决策框架</strong>
+• 明确目标：你想要达到什么结果？
+• 评估约束：有什么限制条件？
+• 分析选项：列出所有可能的方案
+• 权衡利弊：评估每个方案的风险和收益
+• 做出选择：选择最优方案
+
+如果你能提供更具体的信息，我可以给你更有针对性的分析。`
+            };
+
+            return results[topic] || results.other;
         }
 
-        function useExample(type) {
-            const input = document.getElementById('userInput');
-            input.value = examples[type];
-            input.focus();
-
-            // 平滑滚动到输入框
-            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-            showToast('已加载示例问题');
+        // 侧边栏菜单功能
+        function showHistory() {
+            addMessage('assistant', '历史对话功能正在开发中，敬请期待！\n\n目前我们专注于提供最好的决策分析体验。');
+            toggleSidebar();
         }
 
-        function clearInput() {
-            const input = document.getElementById('userInput');
-            input.value = '';
-            input.focus();
-
-            document.getElementById('result').classList.remove('active');
-
-            showToast('已清空');
+        function showSettings() {
+            addMessage('assistant', '设置功能正在开发中，敬请期待！\n\n当前系统已优化为最佳配置。');
+            toggleSidebar();
         }
 
-        function analyze() {
-            const input = document.getElementById('userInput').value.trim();
+        function showHelp() {
+            addMessage('assistant', '使用帮助：
 
-            if (!input) {
-                showToast('请输入决策问题');
-                return;
+<strong>如何使用：</strong>
+1. 输入你的决策问题
+2. 根据引导补充信息
+3. 获取结构化分析结果
+
+<strong>支持场景：</strong>
+• 创业决策
+• 职场转型
+• 合作决策
+• 房产决策
+• 其他决策问题
+
+<strong>提示：</strong>
+• 提供的信息越详细，分析越准确
+• 可以随时开始新对话
+• 分析结果仅供参考，请结合实际情况
+
+如有问题，请告诉我！');
+            toggleSidebar();
+        }
+
+        // 等待 DOM 加载完成后再绑定事件
+        document.addEventListener('DOMContentLoaded', function() {
+            // 输入框自动调整高度
+            const inputField = document.getElementById('userInput');
+            if (inputField) {
+                inputField.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+                });
+
+                // 回车发送消息（Shift+Enter换行）
+                inputField.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                });
             }
-
-            // 显示加载
-            document.getElementById('loading').classList.add('active');
-            document.getElementById('result').classList.remove('active');
-
-            // 滚动到加载区域
-            document.getElementById('loading').scrollIntoView({ behavior: 'smooth' });
-
-            // 模拟API调用
-            setTimeout(() => {
-                document.getElementById('loading').classList.remove('active');
-
-                const resultContainer = document.getElementById('result');
-                resultContainer.classList.add('active');
-
-                let result = mockResults.career;
-
-                if (input.includes('创业')) {
-                    result = mockResults.startup;
-                } else if (input.includes('跳槽') || input.includes('转型')) {
-                    result = mockResults.career;
-                } else if (input.includes('合伙') || input.includes('合作')) {
-                    result = mockResults.cooperation;
-                } else if (input.includes('买房') || input.includes('房产')) {
-                    result = mockResults.house;
-                }
-
-                document.getElementById('resultContent').innerHTML = result;
-
-                // 滚动到结果区域
-                setTimeout(() => {
-                    resultContainer.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
-
-                showToast('分析完成');
-            }, 1500);
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('userInput').focus();
         });
     </script>
 </body>
